@@ -1,20 +1,28 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"os"
 )
 
-func YourHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Gorilla!\n"))
+func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprintf(w, "This is the RESTful api")
 }
 
 func main() {
-	r := mux.NewRouter()
-	// Routes consist of a path and a handler function.
-	r.HandleFunc("/", YourHandler)
+	router := httprouter.New()
+	router.GET("/", indexHandler)
 
-	// Bind to a port and pass our router in
-	log.Fatal(http.ListenAndServe(":8000", r))
+	// print env
+	env := os.Getenv("APP_ENV")
+	if env == "production" {
+		log.Println("Running api server in production mode")
+	} else {
+		log.Println("Running api server in dev mode")
+	}
+
+	http.ListenAndServe(":8080", router)
 }
